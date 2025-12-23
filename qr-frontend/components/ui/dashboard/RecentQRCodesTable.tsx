@@ -1,17 +1,10 @@
+import { QRCode } from '@/store/slices/qrcode.slice';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { ArrowRight } from 'lucide-react';
 import { Badge } from '../common/Badge';
 
-interface QR {
-  id: string;
-  name: string;
-  type: string;
-  scans: number;
-  status: 'active' | 'inactive';
-}
-
-export default function RecentQRCodesTable({ codes }: { codes: QR[] }) {
+export default function RecentQRCodesTable({ list }: { list: QRCode[] }) {
   return (
     <Card title="Recent QR Codes">
       <div className="overflow-x-auto">
@@ -27,8 +20,8 @@ export default function RecentQRCodesTable({ codes }: { codes: QR[] }) {
           </thead>
 
           <tbody>
-            {codes.slice(0, 5).map((qr) => (
-              <tr key={qr.id} className="border-b hover:bg-slate-50">
+            {list.slice(0, 5).map((qr) => (
+              <tr key={qr._id} className="border-b hover:bg-slate-50">
                 <td className="px-6 py-4 font-medium">{qr.name}</td>
                 <td className="px-6 py-4 capitalize">{qr.type}</td>
                 <td className="px-6 py-4">{qr.scans}</td>

@@ -1,4 +1,4 @@
-import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { authService } from '@/services/auth.service';
 
 interface AuthState {
@@ -51,6 +51,10 @@ const authSlice = createSlice({
       state.user = null;
       state.token = null;
     },
+    restoreSession(state, action: PayloadAction<{ user: any; token: string }>) {
+      state.user = action.payload.user;
+      state.token = action.payload.token;
+    },
     clearError(state) {
       state.error = null;
     },
@@ -88,5 +92,5 @@ const authSlice = createSlice({
   },
 });
 
-export const { logout, clearError } = authSlice.actions;
+export const { logout, restoreSession, clearError } = authSlice.actions;
 export default authSlice.reducer;

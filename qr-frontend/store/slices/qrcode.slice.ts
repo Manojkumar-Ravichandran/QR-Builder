@@ -1,5 +1,5 @@
+import { qrCodeService } from '@/services/qrcode.service';
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
-import axios from 'axios';
 
 /* ----------------------------------
    Types
@@ -21,6 +21,7 @@ export interface QRCode {
 
 interface QRState {
   list: QRCode[];
+  selected: QRCode | null;
   loading: boolean;
   error: string | null;
 }
@@ -30,14 +31,10 @@ interface QRState {
 ----------------------------------- */
 const initialState: QRState = {
   list: [],
+  selected: null,
   loading: false,
   error: null,
 };
-
-/* ----------------------------------
-   API Base
------------------------------------ */
-const API_URL = '/api/qrs'; // adjust if needed
 
 /* ----------------------------------
    Thunks
@@ -48,8 +45,8 @@ export const getAllQRs = createAsyncThunk(
   'qr/getAll',
   async (_, { rejectWithValue }) => {
     try {
-      const res = await axios.get(API_URL);
-      return res.data;
+      const res = await qrCodeService.getAll();
+      return res.data.data; // access nested data property
     } catch (err: any) {
       return rejectWithValue(err.response?.data || 'Failed to fetch QRs');
     }
@@ -61,7 +58,7 @@ export const createQR = createAsyncThunk(
   'qr/create',
   async (payload: Partial<QRCode>, { rejectWithValue }) => {
     try {
-      const res = await axios.post(API_URL, payload);
+      const res = await qrCodeService.create(payload);
       return res.data;
     } catch (err: any) {
       return rejectWithValue(err.response?.data || 'Failed to create QR');
@@ -77,7 +74,7 @@ export const updateQR = createAsyncThunk(
     { rejectWithValue }
   ) => {
     try {
-      const res = await axios.put(`${API_URL}/${id}`, data);
+      const res = await qrCodeService.update(id, data);
       return res.data;
     } catch (err: any) {
       return rejectWithValue(err.response?.data || 'Failed to update QR');
@@ -90,13 +87,28 @@ export const deleteQR = createAsyncThunk(
   'qr/delete',
   async (id: string, { rejectWithValue }) => {
     try {
-      await axios.delete(`${API_URL}/${id}`);
+      await qrCodeService.delete(id);
       return id;
     } catch (err: any) {
       return rejectWithValue(err.response?.data || 'Failed to delete QR');
     }
   }
 );
+
+export const getQRById = createAsyncThunk(
+  'qr/getById',
+  async (id: string, { rejectWithValue }) => {
+    try {
+      const res = await qrCodeService.getById(id);
+      return res.data.data; // adjust if backend response differs
+    } catch (err: any) {
+      return rejectWithValue(
+        err.response?.data?.message || 'Failed to fetch QR'
+      );
+    }
+  }
+);
+
 
 /* ----------------------------------
    Slice
@@ -141,6 +153,20 @@ const qrSlice = createSlice({
       // DELETE
       .addCase(deleteQR.fulfilled, (state, action: PayloadAction<string>) => {
         state.list = state.list.filter((qr) => qr._id !== action.payload);
+      })
+      
+      // GET BY ID
+      .addCase(getQRById.pending, (state) => {
+        state.loading = true;
+        state.selected = null;
+      })
+      .addCase(getQRById.fulfilled, (state, action: PayloadAction<QRCode>) => {
+        state.loading = false;
+        state.selected = action.payload;
+      })
+      .addCase(getQRById.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
       });
   },
 });

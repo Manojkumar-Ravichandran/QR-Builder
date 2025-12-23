@@ -20,15 +20,18 @@ export default function AuthPage() {
   const dispatch = useAppDispatch();
   const router = useRouter();
 
-  const { loading, error, token } = useAppSelector((state) => state.auth);
+  const { loading, error, token, user } = useAppSelector((state) => state.auth);
 
   useEffect(() => {
     if (token) {
       localStorage.setItem('token', token);
+      if (user) {
+        localStorage.setItem('user', JSON.stringify(user));
+      }
       document.cookie = `token=${token}; path=/; max-age=86400; SameSite=Lax`;
       router.push('/dashboard');
     }
-  }, [token, router]);
+  }, [token, user, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

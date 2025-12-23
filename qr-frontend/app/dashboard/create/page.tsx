@@ -22,9 +22,14 @@ const Create = () => {
     const [loading, setLoading] = useState(false);
 
     // 🔒 Optional auth guard
+    React.useEffect(() => {
+        if (!user) {
+            router.push('/login');
+        }
+    }, [user, router]);
+
     if (!user) {
-        router.push('/login');
-        return null;
+        return null; // Or a loading spinner
     }
 
     // QR Preview URL
@@ -87,8 +92,8 @@ const Create = () => {
                                         key={t.id}
                                         onClick={() => setType(t.id as any)}
                                         className={`flex flex-col items-center justify-center p-4 border rounded-xl transition-all ${type === t.id
-                                                ? 'border-blue-500 bg-blue-50 text-blue-700 ring-1 ring-blue-500'
-                                                : 'border-slate-200 hover:border-blue-300 hover:bg-slate-50'
+                                            ? 'border-blue-500 bg-blue-50 text-blue-700 ring-1 ring-blue-500'
+                                            : 'border-slate-200 hover:border-blue-300 hover:bg-slate-50'
                                             }`}
                                     >
                                         <t.icon className="w-6 h-6 mb-2" />

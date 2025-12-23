@@ -9,13 +9,13 @@ import React from 'react'
 
 const Dashboard = () => {
   const { user } = useAppSelector((state) => state.auth);
-  // const { codes } = useAppSelector((state) => state.qr);
+  const { list } = useAppSelector((state) => state.qr);
   return (
     <div className="space-y-6">
       <DashboardHeader name={user?.name} />
-      {/* <StatsGrid totalCodes={codes.length} /> */}
+      <StatsGrid totalCodes={list.length} />
       <ScanPerformanceChart />
-      {/* <RecentQRCodesTable codes={codes} /> */}
+      <RecentQRCodesTable list={list} />
     </div>
   )
 }
