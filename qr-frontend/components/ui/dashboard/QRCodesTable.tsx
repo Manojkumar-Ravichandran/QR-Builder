@@ -1,7 +1,7 @@
 import { QRCode } from '@/store/slices/qrcode.slice';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
-import { ArrowRight, Edit, Trash2 } from 'lucide-react';
+import { ArrowRight, Edit, Trash2, Share2 } from 'lucide-react';
 import { Badge } from '../common/Badge';
 
 interface QRCodesTableProps {
@@ -9,9 +9,10 @@ interface QRCodesTableProps {
     loading?: boolean;
     onEdit?: (qr: QRCode) => void;
     onDelete?: (id: string) => void;
+    onShare?: (qr: QRCode) => void;
 }
 
-export default function QRCodesTable({ list, loading, onEdit, onDelete }: QRCodesTableProps) {
+export default function QRCodesTable({ list, loading, onEdit, onDelete, onShare }: QRCodesTableProps) {
     if (loading) {
         return <div>Loading...</div>;
     }
@@ -42,6 +43,15 @@ export default function QRCodesTable({ list, loading, onEdit, onDelete }: QRCode
                                     </Badge>
                                 </td>
                                 <td className="px-6 py-4 text-right space-x-2">
+                                    <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        icon={Share2}
+                                        className="text-blue-500 hover:text-blue-600"
+                                        onClick={() => onShare?.(qr)}
+                                    >
+                                        Share
+                                    </Button>
                                     <Button
                                         variant="ghost"
                                         size="sm"

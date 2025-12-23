@@ -4,6 +4,7 @@ import React, { useEffect } from 'react';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { getAllQRs, deleteQR } from '@/store/slices/qrcode.slice';
 import QRCodesTable from '@/components/ui/dashboard/QRCodesTable';
+import ShareDialog from '@/components/ui/dashboard/ShareDialog';
 import { useRouter } from 'next/navigation';
 
 const CodesPage = () => {
@@ -11,12 +12,20 @@ const CodesPage = () => {
     const dispatch = useAppDispatch();
     const { list, loading } = useAppSelector((state) => state.qr);
 
+    const [shareQR, setShareQR] = React.useState<any>(null);
+    const [isShareOpen, setIsShareOpen] = React.useState(false);
+
     useEffect(() => {
         dispatch(getAllQRs());
     }, [dispatch]);
 
     const handleEdit = (qr: any) => {
         router.push(`/dashboard/codes/${qr._id}/edit`);
+    };
+
+    const handleShare = (qr: any) => {
+        setShareQR(qr);
+        setIsShareOpen(true);
     };
 
     const handleDelete = async (id: string) => {
@@ -35,6 +44,12 @@ const CodesPage = () => {
                 loading={loading}
                 onEdit={handleEdit}
                 onDelete={handleDelete}
+                onShare={handleShare}
+            />
+            <ShareDialog
+                isOpen={isShareOpen}
+                onClose={() => setIsShareOpen(false)}
+                qr={shareQR}
             />
         </div>
     );

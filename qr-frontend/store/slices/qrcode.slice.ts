@@ -9,6 +9,7 @@ export interface QRCode {
   name: string;
   type: 'url' | 'text' | 'wifi';
   data: string;
+  shortCode?: string;
   isDynamic: boolean;
   status: 'active' | 'inactive';
   scans: number;
