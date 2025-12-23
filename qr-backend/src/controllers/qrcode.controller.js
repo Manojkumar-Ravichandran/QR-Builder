@@ -18,6 +18,33 @@ exports.create = async (req, res) => {
   }
 };
 
+exports.getById = async (req, res) => {
+  try {
+    const qr = await QRCode.findOne({
+      _id: req.params.id,
+      user: req.user.id, // 🔐 ensure ownership
+    });
+
+    if (!qr) {
+      return res.status(404).json({
+        status: 'error',
+        message: 'QR code not found',
+      });
+    }
+
+    res.json({
+      status: 'success',
+      message: 'QR code fetched successfully',
+      data: qr,
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: 'error',
+      message: error.message,
+    });
+  }
+};
+
 exports.getAll = async (req, res) => {
   try {
     const qrs = await QRCode.find({ user: req.user.id });
@@ -33,26 +60,54 @@ exports.getAll = async (req, res) => {
 
 exports.update = async (req, res) => {
   try {
-    const qr = await QRCode.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    const qr = await QRCode.findOneAndUpdate(
+      {
+        _id: req.params.id,
+        user: req.user.id, // 🔐 ownership check
+      },
+      req.body,
+      { new: true }
+    );
+
+    if (!qr) {
+      return res.status(404).json({
+        status: 'error',
+        message: 'QR code not found',
+      });
+    }
+
     res.json({
       status: 'success',
       message: 'QR code updated successfully',
-      data: qr
+      data: qr,
     });
   } catch (error) {
     res.status(500).json({ status: 'error', message: error.message });
   }
 };
 
+
 exports.remove = async (req, res) => {
   try {
-    await QRCode.findByIdAndDelete(req.params.id);
+    const qr = await QRCode.findOneAndDelete({
+      _id: req.params.id,
+      user: req.user.id, // 🔐 ownership check
+    });
+
+    if (!qr) {
+      return res.status(404).json({
+        status: 'error',
+        message: 'QR code not found',
+      });
+    }
+
     res.json({
       status: 'success',
       message: 'QR code deleted successfully',
-      data: null
+      data: null,
     });
   } catch (error) {
     res.status(500).json({ status: 'error', message: error.message });
   }
 };
+
