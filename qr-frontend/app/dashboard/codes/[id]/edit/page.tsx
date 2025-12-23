@@ -50,23 +50,29 @@ export default function EditQRPage() {
   const handleUpdate = async () => {
     setSaving(true);
 
-    await dispatch(
-      updateQR({
-        id: qr._id,
-        data: {
-          name,
-          type,
-          data,
-          design: {
-            color,
-            bgColor: '#ffffff',
+    try {
+      await dispatch(
+        updateQR({
+          id: qr._id,
+          data: {
+            name,
+            type,
+            data,
+            design: {
+              color,
+              bgColor: '#ffffff',
+            },
           },
-        },
-      })
-    );
+        })
+      ).unwrap();
 
-    setSaving(false);
-    router.push('/dashboard/codes');
+      router.push('/dashboard/codes');
+    } catch (error) {
+      // Error handled by global toast or slice
+      console.error('Update failed', error);
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
@@ -89,11 +95,10 @@ export default function EditQRPage() {
             <button
               key={t.id}
               onClick={() => setType(t.id as any)}
-              className={`p-4 border rounded-xl ${
-                type === t.id
+              className={`p-4 border rounded-xl ${type === t.id
                   ? 'border-blue-500 bg-blue-50'
                   : 'border-slate-200'
-              }`}
+                }`}
             >
               <t.icon className="mx-auto mb-2" />
               {t.label}

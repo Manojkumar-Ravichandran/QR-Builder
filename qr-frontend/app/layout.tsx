@@ -1,5 +1,6 @@
 import './globals.css';
 import ReduxProvider from '@/providers/ReduxProvider';
+import { ToastProvider } from '@/providers/ToastProvider';
 
 export const metadata = {
   title: 'QR Master',
@@ -11,7 +12,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en">
       <body>
         <ReduxProvider>
-          {children}
+          <ToastProvider>
+            {children}
+          </ToastProvider>
         </ReduxProvider>
       </body>
     </html>

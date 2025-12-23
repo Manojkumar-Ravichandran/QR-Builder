@@ -1,113 +1,84 @@
 const QRCode = require('../models/QRCode');
 const genCode = require('../utils/generateShortCode');
+const catchAsync = require('../utils/catchAsync');
+const AppError = require('../utils/AppError');
 
-exports.create = async (req, res) => {
-  try {
-    const qr = await QRCode.create({
-      ...req.body,
+exports.create = catchAsync(async (req, res, next) => {
+  const qr = await QRCode.create({
+    ...req.body,
+    user: req.user.id,
+    shortCode: genCode()
+  });
+
+  res.status(201).json({
+    status: 'success',
+    message: 'QR code created successfully',
+    data: qr
+  });
+});
+
+exports.getById = catchAsync(async (req, res, next) => {
+  const qr = await QRCode.findOne({
+    _id: req.params.id,
+    user: req.user.id,
+  });
+
+  if (!qr) {
+    return next(new AppError('QR code not found', 404));
+  }
+
+  res.status(200).json({
+    status: 'success',
+    message: 'QR code fetched successfully',
+    data: qr,
+  });
+});
+
+exports.getAll = catchAsync(async (req, res, next) => {
+  const qrs = await QRCode.find({ user: req.user.id });
+
+  res.status(200).json({
+    status: 'success',
+    message: 'QR codes fetched successfully',
+    results: qrs.length,
+    data: qrs
+  });
+});
+
+exports.update = catchAsync(async (req, res, next) => {
+  const qr = await QRCode.findOneAndUpdate(
+    {
+      _id: req.params.id,
       user: req.user.id,
-      shortCode: genCode()
-    });
-    res.json({
-      status: 'success',
-      message: 'QR code created successfully',
-      data: qr
-    });
-  } catch (error) {
-    res.status(500).json({ status: 'error', message: error.message });
+    },
+    req.body,
+    { new: true, runValidators: true }
+  );
+
+  if (!qr) {
+    return next(new AppError('QR code not found', 404));
   }
-};
 
-exports.getById = async (req, res) => {
-  try {
-    const qr = await QRCode.findOne({
-      _id: req.params.id,
-      user: req.user.id, // 🔐 ensure ownership
-    });
+  res.status(200).json({
+    status: 'success',
+    message: 'QR code updated successfully',
+    data: qr,
+  });
+});
 
-    if (!qr) {
-      return res.status(404).json({
-        status: 'error',
-        message: 'QR code not found',
-      });
-    }
+exports.remove = catchAsync(async (req, res, next) => {
+  const qr = await QRCode.findOneAndDelete({
+    _id: req.params.id,
+    user: req.user.id,
+  });
 
-    res.json({
-      status: 'success',
-      message: 'QR code fetched successfully',
-      data: qr,
-    });
-  } catch (error) {
-    res.status(500).json({
-      status: 'error',
-      message: error.message,
-    });
+  if (!qr) {
+    return next(new AppError('QR code not found', 404));
   }
-};
 
-exports.getAll = async (req, res) => {
-  try {
-    const qrs = await QRCode.find({ user: req.user.id });
-    res.json({
-      status: 'success',
-      message: 'QR codes fetched successfully',
-      data: qrs
-    });
-  } catch (error) {
-    res.status(500).json({ status: 'error', message: error.message });
-  }
-};
-
-exports.update = async (req, res) => {
-  try {
-    const qr = await QRCode.findOneAndUpdate(
-      {
-        _id: req.params.id,
-        user: req.user.id, // 🔐 ownership check
-      },
-      req.body,
-      { new: true }
-    );
-
-    if (!qr) {
-      return res.status(404).json({
-        status: 'error',
-        message: 'QR code not found',
-      });
-    }
-
-    res.json({
-      status: 'success',
-      message: 'QR code updated successfully',
-      data: qr,
-    });
-  } catch (error) {
-    res.status(500).json({ status: 'error', message: error.message });
-  }
-};
-
-
-exports.remove = async (req, res) => {
-  try {
-    const qr = await QRCode.findOneAndDelete({
-      _id: req.params.id,
-      user: req.user.id, // 🔐 ownership check
-    });
-
-    if (!qr) {
-      return res.status(404).json({
-        status: 'error',
-        message: 'QR code not found',
-      });
-    }
-
-    res.json({
-      status: 'success',
-      message: 'QR code deleted successfully',
-      data: null,
-    });
-  } catch (error) {
-    res.status(500).json({ status: 'error', message: error.message });
-  }
-};
-
+  res.status(200).json({
+    status: 'success',
+    message: 'QR code deleted successfully',
+    data: null,
+  });
+});

@@ -15,11 +15,15 @@ const initialState: AuthState = {
   error: null,
 };
 
+// LOGIN
 export const login = createAsyncThunk(
   'auth/login',
   async (payload: { email: string; password: string }, thunkAPI) => {
     try {
       const res = await authService.login(payload);
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('show-toast', { detail: { message: res.message || 'Logged in successfully', type: 'success' } }));
+      }
       return res.data;
     } catch (err: any) {
       return thunkAPI.rejectWithValue(
@@ -29,11 +33,15 @@ export const login = createAsyncThunk(
   }
 );
 
+// REGISTER
 export const register = createAsyncThunk(
   'auth/register',
   async (payload: { name: string; email: string; password: string }, thunkAPI) => {
     try {
       const res = await authService.register(payload);
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('show-toast', { detail: { message: res.message || 'Registration successful', type: 'success' } }));
+      }
       return res.data;
     } catch (err: any) {
       return thunkAPI.rejectWithValue(
@@ -68,8 +76,8 @@ const authSlice = createSlice({
       })
       .addCase(login.fulfilled, (state, action) => {
         state.loading = false;
-        state.user = action.payload.data.user;
-        state.token = action.payload.data.token;
+        state.user = action.payload.user;
+        state.token = action.payload.token;
       })
       .addCase(login.rejected, (state, action) => {
         state.loading = false;

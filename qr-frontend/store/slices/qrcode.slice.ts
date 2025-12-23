@@ -46,9 +46,10 @@ export const getAllQRs = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const res = await qrCodeService.getAll();
-      return res.data.data; // access nested data property
+      return res.data; // res is the body, res.data is the array
     } catch (err: any) {
-      return rejectWithValue(err.response?.data || 'Failed to fetch QRs');
+      const message = err.response?.data?.message || err.message || 'Failed to fetch QRs';
+      return rejectWithValue(message);
     }
   }
 );
@@ -59,9 +60,13 @@ export const createQR = createAsyncThunk(
   async (payload: Partial<QRCode>, { rejectWithValue }) => {
     try {
       const res = await qrCodeService.create(payload);
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('show-toast', { detail: { message: res.message || 'QR Code created successfully', type: 'success' } }));
+      }
       return res.data;
     } catch (err: any) {
-      return rejectWithValue(err.response?.data || 'Failed to create QR');
+      const message = err.response?.data?.message || err.message || 'Failed to create QR';
+      return rejectWithValue(message);
     }
   }
 );
@@ -75,9 +80,13 @@ export const updateQR = createAsyncThunk(
   ) => {
     try {
       const res = await qrCodeService.update(id, data);
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('show-toast', { detail: { message: res.message || 'QR Code updated successfully', type: 'success' } }));
+      }
       return res.data;
     } catch (err: any) {
-      return rejectWithValue(err.response?.data || 'Failed to update QR');
+      const message = err.response?.data?.message || err.message || 'Failed to update QR';
+      return rejectWithValue(message);
     }
   }
 );
@@ -87,10 +96,14 @@ export const deleteQR = createAsyncThunk(
   'qr/delete',
   async (id: string, { rejectWithValue }) => {
     try {
-      await qrCodeService.delete(id);
+      const res = await qrCodeService.delete(id);
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('show-toast', { detail: { message: res.message || 'QR Code deleted successfully', type: 'success' } }));
+      }
       return id;
     } catch (err: any) {
-      return rejectWithValue(err.response?.data || 'Failed to delete QR');
+      const message = err.response?.data?.message || err.message || 'Failed to delete QR';
+      return rejectWithValue(message);
     }
   }
 );
@@ -100,7 +113,7 @@ export const getQRById = createAsyncThunk(
   async (id: string, { rejectWithValue }) => {
     try {
       const res = await qrCodeService.getById(id);
-      return res.data.data; // adjust if backend response differs
+      return res.data; // res is body, res.data is the object
     } catch (err: any) {
       return rejectWithValue(
         err.response?.data?.message || 'Failed to fetch QR'
@@ -154,7 +167,7 @@ const qrSlice = createSlice({
       .addCase(deleteQR.fulfilled, (state, action: PayloadAction<string>) => {
         state.list = state.list.filter((qr) => qr._id !== action.payload);
       })
-      
+
       // GET BY ID
       .addCase(getQRById.pending, (state) => {
         state.loading = true;

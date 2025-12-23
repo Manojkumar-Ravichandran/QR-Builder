@@ -1,51 +1,53 @@
 const razorpay = require('../config/razorpay');
 const crypto = require('crypto');
 const User = require('../models/User');
+const catchAsync = require('../utils/catchAsync');
+const AppError = require('../utils/AppError');
 
 const PLANS = {
   pro: 29900,
   business: 99900
 };
 
-exports.createOrder = async (req, res) => {
-  try {
-    const amount = PLANS[req.body.plan];
-    const order = await razorpay.orders.create({
-      amount,
-      currency: 'INR'
-    });
-    res.json({
-      status: 'success',
-      message: 'Order created successfully',
-      data: order
-    });
-  } catch (error) {
-    res.status(500).json({ status: 'error', message: error.message });
+exports.createOrder = catchAsync(async (req, res, next) => {
+  if (!PLANS[req.body.plan]) {
+    return next(new AppError('Invalid plan selected', 400));
   }
-};
 
-exports.verify = async (req, res) => {
-  try {
-    const body = req.body.order_id + '|' + req.body.payment_id;
-    const expected = crypto
-      .createHmac('sha256', process.env.RAZORPAY_KEY_SECRET)
-      .update(body)
-      .digest('hex');
+  const amount = PLANS[req.body.plan];
+  const order = await razorpay.orders.create({
+    amount,
+    currency: 'INR'
+  });
 
-    if (expected !== req.body.signature)
-      return res.status(400).json({ status: 'error', message: 'Invalid signature' });
+  res.status(200).json({
+    status: 'success',
+    message: 'Order created successfully',
+    data: order
+  });
+});
 
-    await User.findByIdAndUpdate(req.user.id, {
-      'subscription.plan': req.body.plan,
-      'subscription.status': 'active'
-    });
+exports.verify = catchAsync(async (req, res, next) => {
+  const { order_id, payment_id, signature, plan } = req.body;
 
-    res.json({
-      status: 'success',
-      message: 'Payment verified and subscription updated',
-      data: null
-    });
-  } catch (error) {
-    res.status(500).json({ status: 'error', message: error.message });
+  const body = order_id + '|' + payment_id;
+  const expected = crypto
+    .createHmac('sha256', process.env.RAZORPAY_KEY_SECRET)
+    .update(body)
+    .digest('hex');
+
+  if (expected !== signature) {
+    return next(new AppError('Invalid signature', 400));
   }
-};
+
+  await User.findByIdAndUpdate(req.user.id, {
+    'subscription.plan': plan,
+    'subscription.status': 'active'
+  });
+
+  res.status(200).json({
+    status: 'success',
+    message: 'Payment verified and subscription updated',
+    data: null
+  });
+});

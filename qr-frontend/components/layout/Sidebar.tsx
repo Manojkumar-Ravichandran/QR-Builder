@@ -16,7 +16,7 @@ const Sidebar = () => {
     { icon: LayoutDashboard, label: 'Dashboard', path: '/dashboard' },
     { icon: PlusCircle, label: 'Create QR', path: '/dashboard/create' },
     { icon: QrCode, label: 'My QR Codes', path: '/dashboard/codes' },
-    // { icon: BarChart2, label: 'Analytics', path: '/dashboard/analytics' },
+    { icon: BarChart2, label: 'Analytics', path: '/dashboard/analytics' },
     // { icon: Settings, label: 'Settings', path: '/dashboard/settings' },
     // { icon: CreditCard, label: 'Billing', path: '/dashboard/billing' },
   ];

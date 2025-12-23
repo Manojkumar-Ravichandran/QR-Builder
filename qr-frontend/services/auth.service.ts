@@ -12,12 +12,18 @@ export interface RegisterPayload {
 }
 
 export const authService = {
-  login: (data: LoginPayload) =>
-    api.post('/auth/login', data),
+  login: async (data: LoginPayload) => {
+    const response = await api.post('/auth/login', data);
+    return response.data;
+  },
 
-  register: (data: RegisterPayload) =>
-    api.post('/auth/register', data),
+  register: async (data: RegisterPayload) => {
+    const response = await api.post('/auth/register', data);
+    return response.data;
+  },
 
-  logout: () =>
-    api.post('/auth/logout'),
+  logout: async () => {
+    const response = await api.post('/auth/logout');
+    return response.data;
+  },
 };

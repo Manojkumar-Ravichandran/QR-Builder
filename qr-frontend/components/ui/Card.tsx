@@ -23,15 +23,40 @@ export const Card: React.FC<CardProps> = ({
       `}
     >
       {title && (
-        <div className="px-6 py-4 border-b border-[rgb(var(--color-muted))]">
-          <h3 className="text-lg font-semibold text-[rgb(var(--color-text))]">
-            {title}
-          </h3>
-        </div>
+        <CardHeader>
+          <CardTitle>{title}</CardTitle>
+        </CardHeader>
       )}
-      <div className="p-6 text-[rgb(var(--color-text))]">
+      <CardContent className={title ? 'pt-0' : ''}>
         {children}
-      </div>
+      </CardContent>
     </div>
   );
 };
+
+export const CardHeader: React.FC<{ children: React.ReactNode; className?: string }> = ({
+  children,
+  className = "",
+}) => (
+  <div className={`px-6 py-4 border-b border-[rgb(var(--color-muted))] ${className}`}>
+    {children}
+  </div>
+);
+
+export const CardTitle: React.FC<{ children: React.ReactNode; className?: string }> = ({
+  children,
+  className = "",
+}) => (
+  <h3 className={`text-lg font-semibold text-[rgb(var(--color-text))] ${className}`}>
+    {children}
+  </h3>
+);
+
+export const CardContent: React.FC<{ children: React.ReactNode; className?: string }> = ({
+  children,
+  className = "",
+}) => (
+  <div className={`p-6 text-[rgb(var(--color-text))] ${className}`}>
+    {children}
+  </div>
+);

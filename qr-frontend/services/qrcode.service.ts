@@ -2,18 +2,28 @@ import api from './api';
 import { QRCode } from '@/store/slices/qrcode.slice';
 
 export const qrCodeService = {
-  create: (data: Partial<QRCode>) =>
-    api.post('/qrcodes', data),
+  create: async (data: Partial<QRCode>) => {
+    const response = await api.post('/qrcodes', data);
+    return response.data;
+  },
 
-  update: (id: string, data: Partial<QRCode>) =>
-    api.put(`/qrcodes/${id}`, data),
+  update: async (id: string, data: Partial<QRCode>) => {
+    const response = await api.patch(`/qrcodes/${id}`, data);
+    return response.data;
+  },
 
-  delete: (id: string) =>
-    api.delete(`/qrcodes/${id}`),
+  delete: async (id: string) => {
+    const response = await api.delete(`/qrcodes/${id}`);
+    return response.data;
+  },
 
-  getAll: () =>
-    api.get('/qrcodes'),
+  getAll: async () => {
+    const response = await api.get('/qrcodes');
+    return response.data;
+  },
 
-  getById: (id: string) =>
-    api.get(`/qrcodes/${id}`),
+  getById: async (id: string) => {
+    const response = await api.get(`/qrcodes/${id}`);
+    return response.data;
+  },
 };
