@@ -6,7 +6,7 @@ const AppError = require('../utils/AppError');
 
 const signToken = id => {
   return jwt.sign({ id }, process.env.JWT_SECRET, {
-    expiresIn: '90d' // or process.env.JWT_EXPIRES_IN
+    expiresIn: '7d' // Token expires after 7 days for security
   });
 };
 

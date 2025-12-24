@@ -3,9 +3,12 @@ import StatCard from './StatCard';
 
 interface Props {
   totalCodes: number;
+  totalScans?: number;
+  activeDevices?: number;
+  loading?: boolean;
 }
 
-export default function StatsGrid({ totalCodes }: Props) {
+export default function StatsGrid({ totalCodes, totalScans = 0, activeDevices = 0, loading = false }: Props) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
       <StatCard
@@ -17,13 +20,13 @@ export default function StatsGrid({ totalCodes }: Props) {
       <StatCard
         icon={TrendingUp}
         label="Total Scans"
-        value="2,450"
+        value={loading ? '...' : totalScans.toLocaleString()}
         color="bg-green-100 text-green-600"
       />
       <StatCard
         icon={Users}
         label="Active Devices"
-        value="1,204"
+        value={loading ? '...' : activeDevices.toLocaleString()}
         color="bg-purple-100 text-purple-600"
       />
     </div>

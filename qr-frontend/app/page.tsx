@@ -48,7 +48,7 @@ const page = () => {
         ]}
       />
 
-      <PricingSection
+      {/* <PricingSection
         heading="Simple, transparent pricing"
         plans={[
           {
@@ -82,7 +82,7 @@ const page = () => {
             ],
           },
         ]}
-      />
+      /> */}
       <Footer />
     </div>
   )
